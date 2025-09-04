@@ -2,9 +2,10 @@ package main
 
 import (
 	"context"
+	"errors"
 	"grpc/pb/chat"
+	"io"
 	"log"
-	"time"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -38,39 +39,61 @@ func main() {
 
 	/* For Chat Service */
 	chatClient := chat.NewChatServiceClient(clientConn)
-	stream, err := chatClient.SendMessage(context.Background())
-	if err != nil {
-		log.Fatal("There is an error in your send message", err)
-	}
 
-	err = stream.Send(&chat.ChatMessage{
-		UserId:  1,
-		Content: "Hello, this is a test message",
+	/*
+		stream, err := chatClient.SendMessage(context.Background())
+		if err != nil {
+			log.Fatal("There is an error in your send message", err)
+		}
+
+		err = stream.Send(&chat.ChatMessage{
+			UserId:  1,
+			Content: "Hello, this is a test message",
+		})
+		if err != nil {
+			log.Fatal("There is an error in your sending message", err)
+		}
+		err = stream.Send(&chat.ChatMessage{
+			UserId:  1,
+			Content: "Hello, again",
+		})
+		if err != nil {
+			log.Fatal("There is an error in your sending message", err)
+		}
+
+		time.Sleep(5 * time.Second)
+		err = stream.Send(&chat.ChatMessage{
+			UserId:  1,
+			Content: "Hello, after 5 seconds",
+		})
+		if err != nil {
+			log.Fatal("There is an error in your sending message", err)
+		}
+
+		res, err := stream.CloseAndRecv()
+		if err != nil {
+			log.Fatal("There is an error in your receiving response", err)
+		}
+
+		log.Println("Response from server:", res.Message)
+	*/
+
+	stream, err := chatClient.ReceiveMessage(context.Background(), &chat.ReceiveMessageRequest{
+		UserId: 22,
 	})
 	if err != nil {
-		log.Fatal("There is an error in your sending message", err)
-	}
-	err = stream.Send(&chat.ChatMessage{
-		UserId:  1,
-		Content: "Hello, again",
-	})
-	if err != nil {
-		log.Fatal("There is an error in your sending message", err)
+		log.Fatal("There is an error in your receive message", err)
 	}
 
-	time.Sleep(5 * time.Second)
-	err = stream.Send(&chat.ChatMessage{
-		UserId:  1,
-		Content: "Hello, after 5 seconds",
-	})
-	if err != nil {
-		log.Fatal("There is an error in your sending message", err)
-	}
+	for {
+		msg, err := stream.Recv()
+		if err != nil {
+			if errors.Is(err, io.EOF) {
+				break
+			}
+			log.Fatal("There is an error in your receiving message", err)
+		}
 
-	res, err := stream.CloseAndRecv()
-	if err != nil {
-		log.Fatal("There is an error in your receiving response", err)
+		log.Printf("Received message from user %d: %s", msg.UserId, msg.Content)
 	}
-
-	log.Println("Response from server:", res.Message)
 }

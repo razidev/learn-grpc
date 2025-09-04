@@ -3,11 +3,13 @@ package main
 import (
 	"context"
 	"errors"
+	"fmt"
 	"grpc/pb/chat"
 	"grpc/pb/user"
 	"io"
 	"log"
 	"net"
+	"time"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -49,9 +51,23 @@ func (cs *chatService) SendMessage(stream grpc.ClientStreamingServer[chat.ChatMe
 	})
 }
 
-// func (UnimplementedChatServiceServer) ReceiveMessage(*ReceiveMessageRequest, grpc.ServerStreamingServer[ChatMessage]) error {
-// 	return status.Errorf(codes.Unimplemented, "method ReceiveMessage not implemented")
-// }
+func (cs *chatService) ReceiveMessage(req *chat.ReceiveMessageRequest, stream grpc.ServerStreamingServer[chat.ChatMessage]) error {
+	log.Printf("ReceiveMessage called for user %d", req.UserId)
+
+	for i := 0; i < 10; i++ {
+		err := stream.Send(&chat.ChatMessage{
+			UserId:  req.UserId,
+			Content: fmt.Sprintf("Hello from server %d!", i),
+		})
+		if err != nil {
+			return status.Errorf(codes.Unknown, "Error sending message: %v", err)
+		}
+		time.Sleep(2 * time.Second)
+	}
+
+	return nil
+}
+
 // func (UnimplementedChatServiceServer) Chat(grpc.BidiStreamingServer[ChatMessage, ChatMessage]) error {
 // 	return status.Errorf(codes.Unimplemented, "method Chat not implemented")
 // }
