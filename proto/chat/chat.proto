@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package chat;
+
+option go_package = "grpc/pb/chat";
+
+service ChatService {
+    rpc SendMessage(stream ChatMessage) returns (ChatResponse); // Client streaming
+    rpc ReceiveMessage(ReceiveMessageRequest) returns (stream ChatMessage); // Server streaming
+    rpc Chat(stream ChatMessage) returns (stream ChatMessage); // Bidirectional streaming
+}
+
+message ChatMessage{
+    int64 user_id = 1;
+    string content = 2;
+}
+
+message ChatResponse {
+    string message = 1;
+}
+
+message ReceiveMessageRequest {
+    int64 user_id = 1;
+}

@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package ecommerce.order;
+
+import "ecommerce/product/product.proto";
+
+option go_package = "grpc/pb/ecommerce/order";
+
+message Order {
+    int64 id = 1;
+    string number = 2;
+    repeated ecommerce.product.Product products = 3;
+}

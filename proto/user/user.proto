@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package user;
+
+option go_package = "grpc/pb/user";
+
+service UserService {
+    rpc CreateUser(User) returns (CreateResponse); // Unary
+}
+
+message Address {
+    int64 id = 1;
+    string full_address = 2;
+    string province = 3;
+    string city = 4;
+}
+
+message User {
+    reserved 2;
+    int64 id = 1;
+    int64 age = 3;
+    double balance = 4;
+    bool is_active = 5;
+    Address address = 6;
+    repeated string educations = 7;
+    string spouse_name = 8;
+}
+
+message CreateResponse {
+    string message = 1;
+}

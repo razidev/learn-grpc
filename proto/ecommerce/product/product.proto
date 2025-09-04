@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package ecommerce.product;
+
+option go_package = "grpc/pb/ecommerce/product";
+
+message Product {
+    int64 id = 1;
+    string name = 2;
+    string description = 3;
+    double price = 4;
+    int32 stock = 5;
+}
