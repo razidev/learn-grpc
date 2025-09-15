@@ -6,6 +6,7 @@ option go_package = "grpc/pb/user";
 
 import "common/base_response.proto";
 import "google/protobuf/timestamp.proto";
+import "buf/validate/validate.proto";
 
 service UserService {
     rpc CreateUser(User) returns (CreateResponse); // Unary
@@ -21,8 +22,8 @@ message Address {
 message User {
     reserved 2;
     int64 id = 1;
-    int64 age = 3;
-    double balance = 4;
+    int64 age = 3 [(buf.validate.field).int64.gte = 0];
+    double balance = 4 [(buf.validate.field).double = {gte: 0, lte: 1000000.0}];
     bool is_active = 5;
     Address address = 6;
     repeated string educations = 7;
