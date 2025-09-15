@@ -4,9 +4,11 @@ import (
 	"context"
 	"grpc/pb/user"
 	"log"
+	"time"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func main() {
@@ -27,6 +29,7 @@ func main() {
 			Province:    "ProvinceName",
 			City:        "CityName",
 		},
+		BirthDate: timestamppb.New(time.Now()),
 	})
 	if err != nil {
 		// st, ok := status.FromError(err)

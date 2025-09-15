@@ -5,6 +5,7 @@ package user;
 option go_package = "grpc/pb/user";
 
 import "common/base_response.proto";
+import "google/protobuf/timestamp.proto";
 
 service UserService {
     rpc CreateUser(User) returns (CreateResponse); // Unary
@@ -26,8 +27,10 @@ message User {
     Address address = 6;
     repeated string educations = 7;
     string spouse_name = 8;
+    google.protobuf.Timestamp birth_date = 9;
 }
 
 message CreateResponse {
-    common.BaseResponse base = 1;
+    common.BaseResponse base = 1;   
+    google.protobuf.Timestamp created_at = 2;
 }

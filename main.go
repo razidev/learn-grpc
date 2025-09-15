@@ -16,6 +16,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/reflection"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type userService struct {
@@ -39,6 +40,7 @@ func (us *userService) CreateUser(ctx context.Context, userRequest *user.User) (
 			IsSuccess:  true,
 			Message:    "User created successfully",
 		},
+		CreatedAt: timestamppb.Now(),
 	}, nil
 }
 
