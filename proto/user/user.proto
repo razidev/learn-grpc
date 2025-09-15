@@ -4,6 +4,8 @@ package user;
 
 option go_package = "grpc/pb/user";
 
+import "common/base_response.proto";
+
 service UserService {
     rpc CreateUser(User) returns (CreateResponse); // Unary
 }
@@ -27,5 +29,5 @@ message User {
 }
 
 message CreateResponse {
-    string message = 1;
+    common.BaseResponse base = 1;
 }

@@ -2,9 +2,8 @@ package main
 
 import (
 	"context"
-	"grpc/pb/chat"
+	"grpc/pb/user"
 	"log"
-	"time"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -16,11 +15,11 @@ func main() {
 		log.Fatal("There is an error in your grpc dial", err)
 	}
 
-	/* For User Service
+	/* For User Service */
 	userClient := user.NewUserServiceClient(clientConn)
 	resp, err := userClient.CreateUser(context.Background(), &user.User{
 		Id:      1,
-		Age:     24,
+		Age:     -2,
 		Balance: 130000,
 		Address: &user.Address{
 			Id:          1,
@@ -30,14 +29,37 @@ func main() {
 		},
 	})
 	if err != nil {
-		log.Fatal("There is an error in your create user", err)
+		// st, ok := status.FromError(err)
+		// if ok {
+		// 	if st.Code() == codes.InvalidArgument {
+		// 		log.Println("Invalid argument error:", st.Message())
+		// 	} else if st.Code() == codes.Unknown {
+		// 		log.Println("Unknown error:", st.Message())
+		// 	} else if st.Code() == codes.Internal {
+		// 		log.Println("Internal server error:", st.Message())
+		// 	}
+
+		// 	return
+		// }
+		log.Println("There is an error in your create user", err)
+		return
 	}
 
-	log.Println("Response from server:", resp.Message)
-	*/
+	if !resp.Base.IsSuccess {
+		switch resp.Base.StatusCode {
+		case 400:
+			log.Println("Client error:", resp.Base.Message)
+		case 500:
+			log.Println("Server error:", resp.Base.Message)
+		}
+
+		return
+	}
+
+	log.Println("Response from server:", resp.Base.Message)
 
 	/* For Chat Service */
-	chatClient := chat.NewChatServiceClient(clientConn)
+	// chatClient := chat.NewChatServiceClient(clientConn)
 
 	/* client streaming
 	stream, err := chatClient.SendMessage(context.Background())
@@ -98,7 +120,7 @@ func main() {
 	}
 	*/
 
-	/* bidirectional streaming */
+	/* bidirectional streaming
 	stream, err := chatClient.Chat(context.Background())
 	if err != nil {
 		log.Fatal("There is an error in your chat", err)
@@ -143,4 +165,5 @@ func main() {
 		log.Fatal("There is an error in your receiving message", err)
 	}
 	log.Printf("Received message from user %d: %s", msg.UserId, msg.Content)
+	*/
 }

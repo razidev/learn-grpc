@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"grpc/pb/chat"
+	"grpc/pb/common"
 	"grpc/pb/user"
 	"io"
 	"log"
@@ -22,9 +23,22 @@ type userService struct {
 }
 
 func (us *userService) CreateUser(ctx context.Context, userRequest *user.User) (*user.CreateResponse, error) {
-	log.Println("Create user request received")
+	if userRequest.Age < 1 {
+		return &user.CreateResponse{
+			Base: &common.BaseResponse{
+				StatusCode: 400,
+				IsSuccess:  false,
+				Message:    "Age must be greater than 0",
+			},
+		}, nil
+	}
+
 	return &user.CreateResponse{
-		Message: "User created successfully",
+		Base: &common.BaseResponse{
+			StatusCode: 200,
+			IsSuccess:  true,
+			Message:    "User created successfully",
+		},
 	}, nil
 }
 

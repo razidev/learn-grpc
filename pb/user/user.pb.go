@@ -9,6 +9,7 @@ package user
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	common "grpc/pb/common"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -183,7 +184,7 @@ func (x *User) GetSpouseName() string {
 
 type CreateResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Message       string                 `protobuf:"bytes,1,opt,name=message,proto3" json:"message,omitempty"`
+	Base          *common.BaseResponse   `protobuf:"bytes,1,opt,name=base,proto3" json:"base,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -218,18 +219,18 @@ func (*CreateResponse) Descriptor() ([]byte, []int) {
 	return file_user_user_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *CreateResponse) GetMessage() string {
+func (x *CreateResponse) GetBase() *common.BaseResponse {
 	if x != nil {
-		return x.Message
+		return x.Base
 	}
-	return ""
+	return nil
 }
 
 var File_user_user_proto protoreflect.FileDescriptor
 
 const file_user_user_proto_rawDesc = "" +
 	"\n" +
-	"\x0fuser/user.proto\x12\x04user\"l\n" +
+	"\x0fuser/user.proto\x12\x04user\x1a\x1acommon/base_response.proto\"l\n" +
 	"\aAddress\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12!\n" +
 	"\ffull_address\x18\x02 \x01(\tR\vfullAddress\x12\x1a\n" +
@@ -245,9 +246,9 @@ const file_user_user_proto_rawDesc = "" +
 	"educations\x18\a \x03(\tR\n" +
 	"educations\x12\x1f\n" +
 	"\vspouse_name\x18\b \x01(\tR\n" +
-	"spouseNameJ\x04\b\x02\x10\x03\"*\n" +
-	"\x0eCreateResponse\x12\x18\n" +
-	"\amessage\x18\x01 \x01(\tR\amessage2=\n" +
+	"spouseNameJ\x04\b\x02\x10\x03\":\n" +
+	"\x0eCreateResponse\x12(\n" +
+	"\x04base\x18\x01 \x01(\v2\x14.common.BaseResponseR\x04base2=\n" +
 	"\vUserService\x12.\n" +
 	"\n" +
 	"CreateUser\x12\n" +
@@ -267,19 +268,21 @@ func file_user_user_proto_rawDescGZIP() []byte {
 
 var file_user_user_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
 var file_user_user_proto_goTypes = []any{
-	(*Address)(nil),        // 0: user.Address
-	(*User)(nil),           // 1: user.User
-	(*CreateResponse)(nil), // 2: user.CreateResponse
+	(*Address)(nil),             // 0: user.Address
+	(*User)(nil),                // 1: user.User
+	(*CreateResponse)(nil),      // 2: user.CreateResponse
+	(*common.BaseResponse)(nil), // 3: common.BaseResponse
 }
 var file_user_user_proto_depIdxs = []int32{
 	0, // 0: user.User.address:type_name -> user.Address
-	1, // 1: user.UserService.CreateUser:input_type -> user.User
-	2, // 2: user.UserService.CreateUser:output_type -> user.CreateResponse
-	2, // [2:3] is the sub-list for method output_type
-	1, // [1:2] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	3, // 1: user.CreateResponse.base:type_name -> common.BaseResponse
+	1, // 2: user.UserService.CreateUser:input_type -> user.User
+	2, // 3: user.UserService.CreateUser:output_type -> user.CreateResponse
+	3, // [3:4] is the sub-list for method output_type
+	2, // [2:3] is the sub-list for method input_type
+	2, // [2:2] is the sub-list for extension type_name
+	2, // [2:2] is the sub-list for extension extendee
+	0, // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_user_user_proto_init() }
