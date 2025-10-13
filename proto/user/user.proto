@@ -10,6 +10,7 @@ import "buf/validate/validate.proto";
 
 service UserService {
     rpc CreateUser(User) returns (CreateResponse); // Unary
+    rpc Login(LoginRequest) returns (LoginResponse); // Unary
 }
 
 message Address {
@@ -34,4 +35,15 @@ message User {
 message CreateResponse {
     common.BaseResponse base = 1;   
     google.protobuf.Timestamp created_at = 2;
+}
+
+message LoginRequest {
+    string email = 1;
+    string password = 2;
+}
+
+message LoginResponse {
+    common.BaseResponse base = 1;   
+    string access_token = 2;
+    string refresh_token = 3;
 }

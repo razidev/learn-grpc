@@ -10,11 +10,13 @@ import (
 	"io"
 	"log"
 	"net"
+	"strings"
 	"time"
 
 	protovalidate "buf.build/go/protovalidate"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/reflection"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -22,6 +24,55 @@ import (
 
 type userService struct {
 	user.UnimplementedUserServiceServer
+}
+
+func loggingMiddleware(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp any, err error) {
+	log.Println("Logging middleware")
+	log.Println(info.FullMethod)
+	res, err := handler(ctx, req)
+
+	log.Println("Setelah request")
+	return res, err
+}
+
+func authMiddleware(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp any, err error) {
+	log.Println("Auth middleware")
+
+	if info.FullMethod == "/user.UserService/Login" {
+		return handler(ctx, req)
+	}
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok {
+		return nil, status.Errorf(codes.Unauthenticated, "metadata is not provided")
+	}
+
+	authToken, ok := md["authorization"]
+	if !ok || len(authToken) == 0 {
+		return nil, status.Errorf(codes.Unauthenticated, "authorization token is not provided")
+	}
+
+	log.Println("Token:", authToken[0])
+
+	splitToken := strings.Split(authToken[0], " ")
+	token := splitToken[1]
+
+	if token != "AccessToken" {
+		return nil, status.Errorf(codes.Unauthenticated, "invalid token")
+	}
+
+	return handler(ctx, req)
+}
+
+func (us *userService) Login(ctx context.Context, loginRequest *user.LoginRequest) (*user.LoginResponse, error) {
+	return &user.LoginResponse{
+		Base: &common.BaseResponse{
+			StatusCode: 200,
+			IsSuccess:  true,
+			Message:    "Login successful",
+		},
+		AccessToken:  "AccessToken",
+		RefreshToken: "RefreshToken",
+	}, nil
 }
 
 func (us *userService) CreateUser(ctx context.Context, userRequest *user.User) (*user.CreateResponse, error) {
@@ -137,7 +188,7 @@ func main() {
 		log.Fatal("There is an error in your net listen", err)
 	}
 
-	serv := grpc.NewServer()
+	serv := grpc.NewServer(grpc.ChainUnaryInterceptor(loggingMiddleware, authMiddleware))
 
 	user.RegisterUserServiceServer(serv, &userService{})
 	chat.RegisterChatServiceServer(serv, &chatService{})
